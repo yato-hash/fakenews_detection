@@ -38,3 +38,20 @@ To train the model from scratch, run the main training pipeline script. This wil
 
 ```bash
 python src/pipeline/train_pipeline.py
+
+
+### Step 3: Test with the Prediction Pipeline (Optional)
+
+After training, we can test the model with a single prediction directly from our terminal. We can change the sample text inside the src/pipeline/predict_pipeline.py file to test different inputs.
+
+```bash
+    python src/pipeline/predict_pipeline.py
+    ```
+
+### Step 4: Deploy as an Interactive Web Application
+We can launch a user-friendly web interface built with Streamlit,by running the following command from the project's root directory:
+
+```bash
+    streamlit run app.py
+    ```
+This will open a new tab in our web browser where we can paste any news article text for real-time classification.
