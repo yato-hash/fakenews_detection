@@ -205,3 +205,9 @@ cython_debug/
 marimo/_static/
 marimo/_lsp/
 __marimo__/
+
+# Ignore the folder containing the raw datasets
+notebook/datasets/
+
+# Ignore the large processed dataset file
+notebook/model_data.csv
