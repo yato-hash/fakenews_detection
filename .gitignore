@@ -208,6 +208,7 @@ __marimo__/
 
 # Ignore the folder containing the raw datasets
 notebook/datasets/
+artifacts/
 
 # Ignore the large processed dataset file
 notebook/model_data.csv
