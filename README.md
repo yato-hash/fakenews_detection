@@ -35,7 +35,6 @@ This project is a machine learning pipeline designed to classify news articles a
 ### Step 2: Run the Training Pipeline
 
 To train the model from scratch, run the main training pipeline script. This will perform data ingestion, data transformation, model training, and evaluation.
-
 ```bash
 python src/pipeline/train_pipeline.py
 ```
