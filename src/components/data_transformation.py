@@ -25,7 +25,13 @@ class DataTransformation:
         This function creates and returns the TfidfVectorizer object.
         """
         try:
-            tfidf = TfidfVectorizer(stop_words='english', max_features=5000)
+            tfidf = TfidfVectorizer(
+                stop_words='english', 
+                max_features=5000,
+                ngram_range=(1, 2),  # Include unigrams and bigrams
+                min_df=2,            # Ignore terms that appear in less than 2 documents
+                max_df=0.95          # Ignore terms that appear in more than 95% of documents
+            )
             return tfidf
         except Exception as e:
             raise CustomException(e, sys)
@@ -43,34 +49,45 @@ class DataTransformation:
 
             target_column_name = "label"
             
-            # Select the 'text' column for input features and handle potential missing values
-            input_feature_train_df = train_df['text'].fillna('')
-            target_feature_train_df = train_df[target_column_name]
-
-            input_feature_test_df = test_df['text'].fillna('')
-            target_feature_test_df = test_df[target_column_name]
-
-            logging.info("Applying TfidfVectorizer on text data.")
+            # Use the cleaned full_text column (created during cleaning)
+            # This combines title and text that were already cleaned
+            text_column = 'full_text' if 'full_text' in train_df.columns else 'text_cleaned'
             
-            # Apply the vectorizer directly to the text column (pandas Series)
+            if text_column not in train_df.columns:
+                raise Exception(f"Required text column '{text_column}' not found. Ensure data cleaning was performed.")
+            
+            # Extract features and targets
+            input_feature_train_df = train_df[text_column].fillna('')
+            target_feature_train_df = train_df[target_column_name]
+            input_feature_test_df = test_df[text_column].fillna('')
+            target_feature_test_df = test_df[target_column_name]
+            
+            logging.info(f"Applying TfidfVectorizer on {text_column} column")
+            
+            # Fit vectorizer on training data only (prevents data leakage)
             input_feature_train_arr = preprocessing_obj.fit_transform(input_feature_train_df)
+            
+            # Transform test data using fitted vectorizer (no data leakage)
             input_feature_test_arr = preprocessing_obj.transform(input_feature_test_df)
             
-            # Convert the sparse matrix output from TF-IDF to a dense array
-            # before combining it with the target column.
+            logging.info(f"TF-IDF transformation completed. Feature dimensions: {input_feature_train_arr.shape[1]}")
+            
+            # Combine features with targets
             train_arr = np.c_[input_feature_train_arr.toarray(), np.array(target_feature_train_df)]
             test_arr = np.c_[input_feature_test_arr.toarray(), np.array(target_feature_test_df)]
-
-            logging.info("Saved preprocessing object.")
+            
+            logging.info("Saving preprocessing object")
             save_object(
                 file_path=self.data_transformation_config.preprocessor_obj_file_path,
                 obj=preprocessing_obj
             )
-
+            
             return (
                 train_arr,
                 test_arr,
                 self.data_transformation_config.preprocessor_obj_file_path,
             )
+            
         except Exception as e:
             raise CustomException(e, sys)
+
